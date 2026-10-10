@@ -14,16 +14,158 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      agent_settings: {
+        Row: {
+          agent_enabled: boolean
+          business_name: string
+          id: number
+          instructions: string
+          updated_at: string
+        }
+        Insert: {
+          agent_enabled?: boolean
+          business_name?: string
+          id?: number
+          instructions?: string
+          updated_at?: string
+        }
+        Update: {
+          agent_enabled?: boolean
+          business_name?: string
+          id?: number
+          instructions?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      contacts: {
+        Row: {
+          ai_paused: boolean
+          chat_id: string
+          created_at: string
+          id: string
+          last_message_at: string
+          name: string
+        }
+        Insert: {
+          ai_paused?: boolean
+          chat_id: string
+          created_at?: string
+          id?: string
+          last_message_at?: string
+          name?: string
+        }
+        Update: {
+          ai_paused?: boolean
+          chat_id?: string
+          created_at?: string
+          id?: string
+          last_message_at?: string
+          name?: string
+        }
+        Relationships: []
+      }
+      messages: {
+        Row: {
+          contact_id: string
+          content: string
+          created_at: string
+          external_id: string | null
+          id: string
+          role: string
+        }
+        Insert: {
+          contact_id: string
+          content: string
+          created_at?: string
+          external_id?: string | null
+          id?: string
+          role: string
+        }
+        Update: {
+          contact_id?: string
+          content?: string
+          created_at?: string
+          external_id?: string | null
+          id?: string
+          role?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "messages_contact_id_fkey"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "contacts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      products: {
+        Row: {
+          active: boolean
+          category: string
+          created_at: string
+          details: string
+          id: string
+          name: string
+          price: number
+          unit: string
+        }
+        Insert: {
+          active?: boolean
+          category?: string
+          created_at?: string
+          details?: string
+          id?: string
+          name: string
+          price?: number
+          unit?: string
+        }
+        Update: {
+          active?: boolean
+          category?: string
+          created_at?: string
+          details?: string
+          id?: string
+          name?: string
+          price?: number
+          unit?: string
+        }
+        Relationships: []
+      }
+      user_roles: {
+        Row: {
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "admin"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +292,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["admin"],
+    },
   },
 } as const
