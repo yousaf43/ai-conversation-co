@@ -10,33 +10,44 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ApiPublicGreenapiWebhookRouteImport } from './routes/api/public/greenapi-webhook'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicGreenapiWebhookRoute =
+  ApiPublicGreenapiWebhookRouteImport.update({
+    id: '/api/public/greenapi-webhook',
+    path: '/api/public/greenapi-webhook',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/api/public/greenapi-webhook': typeof ApiPublicGreenapiWebhookRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/api/public/greenapi-webhook': typeof ApiPublicGreenapiWebhookRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/api/public/greenapi-webhook': typeof ApiPublicGreenapiWebhookRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths: '/' | '/api/public/greenapi-webhook'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to: '/' | '/api/public/greenapi-webhook'
+  id: '__root__' | '/' | '/api/public/greenapi-webhook'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  ApiPublicGreenapiWebhookRoute: typeof ApiPublicGreenapiWebhookRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -48,11 +59,19 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/greenapi-webhook': {
+      id: '/api/public/greenapi-webhook'
+      path: '/api/public/greenapi-webhook'
+      fullPath: '/api/public/greenapi-webhook'
+      preLoaderRoute: typeof ApiPublicGreenapiWebhookRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  ApiPublicGreenapiWebhookRoute: ApiPublicGreenapiWebhookRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
