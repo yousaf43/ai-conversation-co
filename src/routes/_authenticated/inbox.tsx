@@ -114,7 +114,7 @@ function Thread({ contact, onBack }: { contact: Contact; onBack: () => void }) {
     setSending(true);
     const r = await send({ data: { contactId: contact.id, text } });
     setSending(false);
-    if (!r.ok) return toast.error(r.error ?? "Send failed");
+    if (!r.ok) return void toast.error(r.error ?? "Send failed");
     setText("");
     qc.invalidateQueries({ queryKey: ["messages", contact.id] });
   }

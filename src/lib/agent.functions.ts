@@ -59,5 +59,5 @@ export const getConnectionStatus = createServerFn({ method: "GET" })
   .handler(async ({ context }) => {
     await assertAdmin(context as Ctx);
     const { greenApiConfigured } = await import("./greenapi.server");
-    return { whatsapp: greenApiConfigured(), webhookToken: Boolean(process.env.GREEN_WEBHOOK_TOKEN) };
+    return { whatsapp: greenApiConfigured(), webhookToken: Boolean(process.env["GREEN_WEBHOOK_TOKEN"]) };
   });

@@ -45,7 +45,7 @@ ${catalog}`;
 
 /** Generates one human-like WhatsApp reply. Streams internally and returns the final text. */
 export async function generateAgentReply(instructions: string, history: AgentTurn[]) {
-  const apiKey = process.env.LOVABLE_API_KEY;
+  const apiKey = process.env["LOVABLE_API_KEY"];
   if (!apiKey) throw new Error("AI is not configured (missing LOVABLE_API_KEY)");
 
   const runIdFetch = createLovableAiGatewayRunIdFetch();
