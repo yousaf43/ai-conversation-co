@@ -8,3 +8,10 @@
 > Commits you push to the connected branch sync back to Lovable and show up in
 > the editor, so keep the branch in a working state.
 <!-- LOVABLE:END -->
+
+# Project rules
+
+- WhatsApp traffic enters only via `src/routes/api/public/greenapi-webhook.ts`, which checks a Bearer token against `GREEN_WEBHOOK_TOKEN` before any privileged DB work — the route is public.
+- Agent prompt + AI call live in `src/lib/agent.server.ts`; the product catalog and owner notes are loaded from the database on every reply so rate changes apply instantly.
+- Dashboard data is admin-only via RLS `has_role(auth.uid(),'admin')`; the first account that signs up is made admin by a DB trigger.
+- Message dedupe uses a unique `external_id` (Green API idMessage) so webhook retries never cause double replies.

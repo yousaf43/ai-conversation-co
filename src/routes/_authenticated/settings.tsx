@@ -39,7 +39,7 @@ function SettingsPage() {
   async function save() {
     if (!form) return;
     const { error } = await supabase.from("agent_settings").upsert({ id: 1, ...form, updated_at: new Date().toISOString() });
-    if (error) return toast.error(error.message);
+    if (error) return void toast.error(error.message);
     toast.success("Save ho gaya");
   }
 
@@ -86,7 +86,7 @@ function SettingsPage() {
   );
 }
 
-function Status({ ok, label }: { ok?: boolean; label: string }) {
+function Status({ ok, label }: { ok?: boolean | undefined; label: string }) {
   return (
     <li className="flex items-center gap-2">
       {ok ? <CheckCircle2 className="h-4 w-4 text-primary" /> : <CircleDashed className="h-4 w-4 text-muted-foreground" />}

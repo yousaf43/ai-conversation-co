@@ -40,24 +40,24 @@ function Products() {
   const refresh = () => qc.invalidateQueries({ queryKey: ["products"] });
 
   async function save() {
-    if (!edit?.name.trim()) return toast.error("Naam likhein");
+    if (!edit?.name.trim()) return void toast.error("Naam likhein");
     const { id, ...row } = edit;
     const { error } = id
       ? await supabase.from("products").update(row).eq("id", id)
       : await supabase.from("products").insert(row);
-    if (error) return toast.error(error.message);
+    if (error) return void toast.error(error.message);
     setEdit(null);
     refresh();
   }
   async function remove(id: string) {
     if (!confirm("Yeh product delete karein?")) return;
     const { error } = await supabase.from("products").delete().eq("id", id);
-    if (error) return toast.error(error.message);
+    if (error) return void toast.error(error.message);
     refresh();
   }
   async function toggle(p: Product) {
     const { error } = await supabase.from("products").update({ active: !p.active }).eq("id", p.id!);
-    if (error) return toast.error(error.message);
+    if (error) return void toast.error(error.message);
     refresh();
   }
 

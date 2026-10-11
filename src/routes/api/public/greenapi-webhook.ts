@@ -18,7 +18,7 @@ export const Route = createFileRoute("/api/public/greenapi-webhook")({
   server: {
     handlers: {
       POST: async ({ request }) => {
-        const expected = process.env.GREEN_WEBHOOK_TOKEN;
+        const expected = process.env["GREEN_WEBHOOK_TOKEN"];
         const got = request.headers.get("authorization")?.replace(/^Bearer\s+/i, "").trim();
         if (!expected || got !== expected) return json({ error: "Unauthorized" }, 401);
 

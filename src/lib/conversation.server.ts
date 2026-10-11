@@ -22,7 +22,7 @@ export async function loadAgentContext(db: Admin) {
 /** Handle one incoming WhatsApp text: save it, and let the agent reply if allowed. */
 export async function handleIncomingText(
   db: Admin,
-  input: { chatId: string; senderName: string; text: string; externalId?: string },
+  input: { chatId: string; senderName: string; text: string; externalId?: string | undefined },
 ) {
   const { data: contact, error: cErr } = await db
     .from("contacts")
