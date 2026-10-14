@@ -1,12 +1,14 @@
 import { buildInstructions, generateAgentReply, type AgentTurn } from "./agent.server";
 import { sendWhatsAppText } from "./greenapi.server";
+import { loadRatesSheet } from "./rates-sheet.server";
 
 type Admin = (typeof import("@/integrations/supabase/client.server"))["supabaseAdmin"];
 
 export async function loadAgentContext(db: Admin) {
-  const [{ data: settings }, { data: products, error }] = await Promise.all([
+  const [{ data: settings }, { data: products, error }, sheetText] = await Promise.all([
     db.from("agent_settings").select("*").eq("id", 1).maybeSingle(),
     db.from("products").select("name, category, price, unit, details").eq("active", true).order("category"),
+    loadRatesSheet(),
   ]);
   if (error) throw error;
   return {
@@ -15,6 +17,7 @@ export async function loadAgentContext(db: Admin) {
       settings?.business_name ?? "K&S Solar Energy",
       settings?.instructions ?? "",
       products ?? [],
+      sheetText,
     ),
   };
 }
