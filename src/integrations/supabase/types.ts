@@ -45,7 +45,11 @@ export type Database = {
           created_at: string
           id: string
           last_message_at: string
+          lead: Json
+          lead_row: number | null
           name: string
+          stage: string
+          summary: string
         }
         Insert: {
           ai_paused?: boolean
@@ -53,7 +57,11 @@ export type Database = {
           created_at?: string
           id?: string
           last_message_at?: string
+          lead?: Json
+          lead_row?: number | null
           name?: string
+          stage?: string
+          summary?: string
         }
         Update: {
           ai_paused?: boolean
@@ -61,7 +69,11 @@ export type Database = {
           created_at?: string
           id?: string
           last_message_at?: string
+          lead?: Json
+          lead_row?: number | null
           name?: string
+          stage?: string
+          summary?: string
         }
         Relationships: []
       }

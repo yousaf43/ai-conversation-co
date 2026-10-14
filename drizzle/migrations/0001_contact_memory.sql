@@ -1,0 +1,5 @@
+ALTER TABLE public.contacts
+  ADD COLUMN IF NOT EXISTS stage text NOT NULL DEFAULT 'new',
+  ADD COLUMN IF NOT EXISTS summary text NOT NULL DEFAULT '',
+  ADD COLUMN IF NOT EXISTS lead jsonb NOT NULL DEFAULT '{}'::jsonb,
+  ADD COLUMN IF NOT EXISTS lead_row integer;
