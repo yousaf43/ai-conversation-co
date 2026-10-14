@@ -43,7 +43,7 @@ ${sheetText}`
 HOW TO BEHAVE
 - Sound like a warm, experienced human staff member — never say you are an AI, bot or assistant.
 - Reply in the SAME language and script the customer uses (Roman Urdu, Urdu script, English, or a mix).
-- Keep messages short and natural like WhatsApp: 1-4 short sentences, no long lists unless they ask for details. Light emoji is fine, not every message.
+- Keep messages short and natural like WhatsApp: 1-4 short sentences. If you have two separate thoughts, put a blank line between them (they are sent as separate bubbles), no long lists unless they ask for details. Light emoji is fine, not every message.
 - Think about what the customer actually wants before answering. Read the whole conversation. Ask one helpful question at a time to understand their need (home or business, monthly bill / units, city, budget, backup needed).
 - Use ONLY the rates given below. Never invent prices, discounts, warranties or stock. If something is not listed, say you will confirm with the team and get back.
 - Guide the customer toward the next step (free site survey, sharing their bill, visiting/calling) without being pushy.
@@ -100,4 +100,38 @@ export async function generateAgentReply(instructions: string, history: AgentTur
   const text = (await result.text).trim();
   if (!text) throw new Error("The AI returned an empty reply");
   return text;
+}
+
+export const STAGES = ["new", "enquiry", "qualifying", "quote_sent", "negotiating", "site_survey", "won", "lost"] as const;
+
+export type CustomerMemory = {
+  stage: string;
+  summary: string;
+  lead: { name?: string; city?: string; interest?: string; bill?: string; budget?: string; panels?: string };
+};
+
+/** Prompt block telling the agent what it already knows about this customer. */
+export function memoryBlock(m: CustomerMemory | null) {
+  if (!m || (!m.summary && m.stage === "new")) return "\n\nCUSTOMER MEMORY\n(New customer — nothing known yet.)";
+  const facts = Object.entries(m.lead).filter(([, v]) => v).map(([k, v]) => `${k}: ${v}`).join(", ");
+  return `\n\nCUSTOMER MEMORY (what you already know — don't ask again)\nStage: ${m.stage}\n${facts ? `Facts: ${facts}\n` : ""}Summary: ${m.summary}`;
+}
+
+/** After a reply, updates the customer's stage, facts and running summary. */
+export async function updateCustomerMemory(prev: CustomerMemory | null, history: AgentTurn[]): Promise<CustomerMemory> {
+  const transcript = history.slice(-30).map((m) => `${m.role === "client" ? "Customer" : "Us"}: ${m.content}`).join("\n");
+  const instructions = `You keep CRM notes for a solar company. Return ONLY JSON, no markdown:
+{"stage": one of ${JSON.stringify(STAGES)}, "summary": "2-4 short English sentences: what they want, what was quoted/agreed, what's next", "lead": {"name":"","city":"","interest":"","bill":"","budget":"","panels":""}}
+Keep previous facts unless the conversation changes them. Use "" for unknown.
+Previous notes: ${JSON.stringify(prev ?? {})}`;
+  const raw = await generateAgentReply(instructions, [{ role: "client", content: transcript }]);
+  const json = raw.slice(raw.indexOf("{"), raw.lastIndexOf("}") + 1);
+  const p = JSON.parse(json) as Partial<CustomerMemory>;
+  const stage = STAGES.includes(p.stage as (typeof STAGES)[number]) ? p.stage! : (prev?.stage ?? "enquiry");
+  const lead: CustomerMemory["lead"] = {};
+  for (const k of ["name", "city", "interest", "bill", "budget", "panels"] as const) {
+    const v = p.lead?.[k] ?? prev?.lead?.[k];
+    if (v) lead[k] = String(v).slice(0, 200);
+  }
+  return { stage, summary: String(p.summary ?? prev?.summary ?? "").slice(0, 1000), lead };
 }
