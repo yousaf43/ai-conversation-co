@@ -12,6 +12,6 @@
 # Project rules
 
 - WhatsApp traffic enters only via `src/routes/api/public/greenapi-webhook.ts`, which checks a Bearer token against `GREEN_WEBHOOK_TOKEN` before any privileged DB work — the route is public.
-- Agent prompt + AI call live in `src/lib/agent.server.ts`; the product catalog and owner notes are loaded from the database on every reply so rate changes apply instantly.
+- Agent prompt + AI call live in `src/lib/agent.server.ts`; rates are read live from the owner Google Sheet (src/lib/rates-sheet.server.ts, 60s cache, falls back to the products table) and owner notes from the DB on every reply so rate changes apply without a deploy.
 - Dashboard data is admin-only via RLS `has_role(auth.uid(),'admin')`; the first account that signs up is made admin by a DB trigger.
 - Message dedupe uses a unique `external_id` (Green API idMessage) so webhook retries never cause double replies.
