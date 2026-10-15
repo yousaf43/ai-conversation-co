@@ -1,14 +1,18 @@
-# Welcome to your Lovable project
+# Ai Conversation Co
+
+mugha aik agent bana do jo mara whatsapp ka clinets ko manage kara humain ki tara wo agent khud thniking kar sakay mean clinet ka answer ko deakh ka us hisab sa answer karay human ki tara ma apko rates wagira do ga wo agent greenapi ka zarya whatsappp ka sath connect ko ga main apna sara products ka rates wagira bad main do ga abi sirf demo tayar kro
 
 This project was built with [Lovable](https://lovable.dev).
 
+**Live app**: https://ai-conversation-co.lovable.app
+
 ## Build with Lovable
 
-Open your project in the [Lovable editor](https://lovable.dev) and keep building.
+Continue developing this project in the [Lovable editor](https://lovable.dev/projects/4a4ebc78-c812-4ced-9c94-d30b59a47ae8).
 
 - **Ship faster**: describe what you want to build and Lovable handles the code.
-- **Stay in sync**: connect the project to GitHub and every change made in Lovable is committed straight to your repository.
-- **Full ownership**: this code is yours. Push to your repository and your changes sync back into Lovable, ready for your next prompt.
+- **Stay in sync**: every change made in Lovable is committed straight to this repository.
+- **Full ownership**: this code is yours. Push to `main` on GitHub and your changes sync back into Lovable, ready for your next prompt.
 
 ## Development
 
@@ -20,10 +24,3 @@ cd <repository-name>
 npm i
 npm run dev
 ```
-
-## Built with
-
-- TanStack Start
-- TypeScript
-- React
-- Tailwind CSS
