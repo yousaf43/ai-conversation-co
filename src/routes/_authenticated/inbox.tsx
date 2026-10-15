@@ -85,7 +85,7 @@ function Inbox() {
   );
 }
 
-type Contact = { id: string; chat_id: string; name: string; ai_paused: boolean };
+type Contact = { id: string; chat_id: string; name: string; ai_paused: boolean; stage?: string; summary?: string };
 
 function Thread({ contact, onBack }: { contact: Contact; onBack: () => void }) {
   const qc = useQueryClient();
@@ -125,7 +125,11 @@ function Thread({ contact, onBack }: { contact: Contact; onBack: () => void }) {
         <button className="text-sm text-primary md:hidden" onClick={onBack}>← Back</button>
         <div className="min-w-0 flex-1">
           <p className="truncate font-semibold">{contact.name || phone(contact.chat_id)}</p>
-          <p className="text-xs text-muted-foreground">{phone(contact.chat_id)}</p>
+          <p className="text-xs text-muted-foreground">
+            {phone(contact.chat_id)}
+            {contact.stage && <span className="ml-2 rounded bg-secondary px-1.5 py-0.5 text-[11px] text-secondary-foreground">{contact.stage.replace("_", " ")}</span>}
+          </p>
+          {contact.summary && <p className="mt-1 line-clamp-2 text-xs text-muted-foreground">{contact.summary}</p>}
         </div>
         <label className="flex items-center gap-2 text-sm">
           <Bot className="h-4 w-4 text-primary" /> Agent

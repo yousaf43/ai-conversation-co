@@ -1,5 +1,9 @@
-import { buildInstructions, generateAgentReply, type AgentTurn } from "./agent.server";
-import { sendWhatsAppText } from "./greenapi.server";
+import {
+  buildInstructions, generateAgentReply, memoryBlock, updateCustomerMemory,
+  type AgentTurn, type CustomerMemory,
+} from "./agent.server";
+import { humanTypingMs, markChatRead, sendWhatsAppText, splitBubbles } from "./greenapi.server";
+import { upsertLeadRow } from "./leads-sheet.server";
 import { loadRatesSheet } from "./rates-sheet.server";
 
 type Admin = (typeof import("@/integrations/supabase/client.server"))["supabaseAdmin"];
@@ -59,16 +63,43 @@ export async function handleIncomingText(
     .limit(30);
   if (hErr) throw hErr;
 
-  const reply = await generateAgentReply(ctx.instructions, (history ?? []).reverse() as AgentTurn[]);
-  const sent = await sendWhatsAppText(input.chatId, reply);
+  const turns = (history ?? []).reverse() as AgentTurn[];
+  const prevMemory: CustomerMemory = {
+    stage: contact.stage,
+    summary: contact.summary,
+    lead: (contact.lead ?? {}) as CustomerMemory["lead"],
+  };
+  const reply = await generateAgentReply(ctx.instructions + memoryBlock(prevMemory), turns);
 
-  const { error: rErr } = await db.from("messages").insert({
-    contact_id: contact.id,
-    role: "agent",
-    content: reply,
-    external_id: sent.idMessage ?? null,
-  });
-  if (rErr) throw rErr;
+  // Human feel: open chat (blue ticks), then each bubble arrives with "typing..." first.
+  await markChatRead(input.chatId);
+  for (const bubble of splitBubbles(reply)) {
+    const sent = await sendWhatsAppText(input.chatId, bubble, humanTypingMs(bubble));
+    const { error: rErr } = await db.from("messages").insert({
+      contact_id: contact.id,
+      role: "agent",
+      content: bubble,
+      external_id: sent.idMessage ?? null,
+    });
+    if (rErr) throw rErr;
+  }
   await db.from("contacts").update({ last_message_at: new Date().toISOString() }).eq("id", contact.id);
+
+  // Update customer memory + Leads sheet. Failures here never block the reply.
+  try {
+    const mem = await updateCustomerMemory(prevMemory, [...turns, { role: "agent", content: reply }]);
+    let leadRow = contact.lead_row;
+    try {
+      leadRow = await upsertLeadRow({
+        row: contact.lead_row, phone: input.chatId.replace(/@c\.us$/, ""), stage: mem.stage,
+        summary: mem.summary, lead: mem.lead, fallbackName: contact.name,
+      });
+    } catch (e) {
+      console.error("Leads sheet update failed:", e);
+    }
+    await db.from("contacts").update({ stage: mem.stage, summary: mem.summary, lead: mem.lead, lead_row: leadRow }).eq("id", contact.id);
+  } catch (e) {
+    console.error("Customer memory update failed:", e);
+  }
   return { replied: true };
 }
