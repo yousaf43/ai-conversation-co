@@ -85,7 +85,7 @@ function Inbox() {
   );
 }
 
-type Contact = { id: string; chat_id: string; name: string; ai_paused: boolean };
+type Contact = { id: string; chat_id: string; name: string; ai_paused: boolean; stage?: string; summary?: string };
 
 function Thread({ contact, onBack }: { contact: Contact; onBack: () => void }) {
   const qc = useQueryClient();
